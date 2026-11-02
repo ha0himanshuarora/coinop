@@ -499,8 +499,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun saveWidgets(list: List<WidgetRow>) = launchCatching {
-        widgets = list
-        WidgetsRepo.save(list)
+        // Home sorts by `position`, so renumber to match the new order before showing it.
+        val ordered = list.mapIndexed { i, w -> w.copy(position = i) }
+        widgets = ordered
+        WidgetsRepo.save(ordered)
     }
 
     // ================================================================ investments
