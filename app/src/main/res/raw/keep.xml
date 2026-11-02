@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Optional display fonts are looked up by name at runtime, so keep them through resource shrinking. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@font/cyber_horizon,@font/sd_dystopian" />

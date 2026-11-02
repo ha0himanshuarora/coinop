@@ -1,0 +1,3 @@
+# Copy these two lines into local.properties (Android Studio already creates that file with sdk.dir)
+SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR-KEY

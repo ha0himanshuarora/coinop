@@ -1,0 +1,17 @@
+*.iml
+.gradle/
+local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+
+# Personal-use / demo display fonts: do not publish them in a public repo
+app/src/main/res/font/cyber_horizon.ttf
+app/src/main/res/font/sd_dystopian.otf
+
+.kotlin/
+*.jks
+*.keystore

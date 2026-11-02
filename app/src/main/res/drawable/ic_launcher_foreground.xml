@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- hard offset shadow -->
+    <path
+        android:fillColor="#B83A2D"
+        android:pathData="M45,37 L69,37 L77,45 L77,69 L69,77 L45,77 L37,69 L37,45 Z" />
+    <!-- ink outline -->
+    <path
+        android:fillColor="#1C1B1A"
+        android:pathData="M42,34 L66,34 L74,42 L74,66 L66,74 L42,74 L34,66 L34,42 Z" />
+    <!-- coin face -->
+    <path
+        android:fillColor="#E8A04A"
+        android:pathData="M44,38 L64,38 L70,44 L70,64 L64,70 L44,70 L38,64 L38,44 Z" />
+    <!-- coin slot -->
+    <path
+        android:fillColor="#1C1B1A"
+        android:pathData="M51,44 h6 v20 h-6 z" />
+</vector>
