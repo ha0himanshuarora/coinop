@@ -2,6 +2,16 @@ package com.coinop.budget.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import com.coinop.budget.ui.theme.rShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -225,28 +235,60 @@ private fun MainShell(vm: MainViewModel) {
     }
 }
 
+/** Floating tab bar: one sticker pill holds the tabs, and a highlight block slides to the chosen one. */
 @Composable
 private fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) {
     val p = Retro.p
-    Column(Modifier.fillMaxWidth().background(p.surface).navigationBarsPadding()) {
-        Box(Modifier.fillMaxWidth().height(2.dp).background(p.outline))
-        Row(
-            Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Tab.entries.forEach { t ->
-                val sel = t == selected
-                val fill = if (sel) p.mustard else p.surface
-                val face = if (sel) Modifier.sticker(p.mustard, 8.dp, shadow = false) else Modifier
-                Column(
-                    Modifier.weight(1f).then(face).clickable { onSelect(t) }.padding(vertical = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    AppIconView(t.icon, p.onFace(fill), 22.dp)
-                    Spacer(Modifier.height(4.dp))
-                    RText(t.label.uppercase(), size = 12.sp, color = p.onFace(fill), bold = sel, maxLines = 1)
+    val cyber = Retro.cyber
+    val tabs = Tab.entries
+    val barShape = rShape(16.dp)
+    val chipShape = rShape(11.dp)
+
+    // end/bottom are 3 dp short of start/top: the sticker adds its own 3 dp of shadow room there.
+    Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 12.dp, end = 9.dp, top = 6.dp, bottom = 5.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth().sticker(p.surface, 16.dp, shape = barShape).padding(6.dp)) {
+            val tabWidth = maxWidth / tabs.size
+            val slide by animateDpAsState(
+                targetValue = tabWidth * tabs.indexOf(selected),
+                animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+                label = "tabSlide",
+            )
+            // The moving highlight. Cyberpunk adds a green edge to the mustard face.
+            Box(
+                Modifier
+                    .offset(x = slide)
+                    .width(tabWidth)
+                    .height(BAR_TAB_HEIGHT)
+                    .sticker(p.mustard, 11.dp, shadow = false, shape = chipShape)
+                    .then(if (cyber) Modifier.border(2.dp, p.green, chipShape) else Modifier),
+            )
+            Row(Modifier.fillMaxWidth()) {
+                tabs.forEach { t ->
+                    val sel = t == selected
+                    val content by animateColorAsState(
+                        targetValue = if (sel) p.onFace(p.mustard) else p.onFace(p.surface),
+                        animationSpec = tween(durationMillis = 200),
+                        label = "tabInk",
+                    )
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .height(BAR_TAB_HEIGHT)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) { onSelect(t) },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        AppIconView(t.icon, content, 24.dp)
+                        Spacer(Modifier.height(4.dp))
+                        RText(t.label.uppercase(), size = 11.sp, color = content, bold = true, maxLines = 1)
+                    }
                 }
             }
         }
     }
 }
+
+private val BAR_TAB_HEIGHT = 56.dp
