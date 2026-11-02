@@ -16,7 +16,10 @@ val localProps = Properties().apply {
 }
 // A value comes from local.properties first, then from an environment variable of the same name
 // (that is how GitHub Actions passes its secrets).
-fun prop(name: String): String = (localProps.getProperty(name) ?: System.getenv(name) ?: "").trim()
+// Backslashes and quotes are stripped: they never appear in a URL or key, but a value copied from
+// local.properties can carry "https\://" and would break the generated BuildConfig.java.
+fun prop(name: String): String =
+    (localProps.getProperty(name) ?: System.getenv(name) ?: "").replace("\\", "").replace("\"", "").trim()
 
 // Version: -PappVersion=1.2.3 (set by the Release workflow). A local build is labelled 1.0.0-dev.
 // versionCode grows with the version: 1.2.3 -> 1002003.

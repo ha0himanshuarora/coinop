@@ -103,7 +103,7 @@ jobs:
       - name: Name the APK
         run: |
           mkdir -p dist
-          cp app/build/outputs/apk/release/app-release.apk "dist/Coinop-$VERSION_NAME.apk"
+          cp app/build/outputs/apk/release/Coinop-*-release.apk "dist/Coinop-$VERSION_NAME.apk"
           (cd dist && sha256sum "Coinop-$VERSION_NAME.apk" > "Coinop-$VERSION_NAME.apk.sha256")
           ls -la dist
 
