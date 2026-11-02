@@ -505,6 +505,62 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         WidgetsRepo.save(ordered)
     }
 
+    // ================================================================ app updates
+
+    var update by mutableStateOf<com.coinop.budget.data.UpdateUi>(com.coinop.budget.data.UpdateUi.Idle); private set
+
+    fun checkForUpdate() {
+        if (update is com.coinop.budget.data.UpdateUi.Checking || update is com.coinop.budget.data.UpdateUi.Downloading) return
+        update = com.coinop.budget.data.UpdateUi.Checking
+        viewModelScope.launch {
+            update = try {
+                val r = com.coinop.budget.data.Updater.latest()
+                if (r != null && com.coinop.budget.data.Updater.isNewer(r.version, com.coinop.budget.BuildConfig.VERSION_NAME)) {
+                    com.coinop.budget.data.UpdateUi.Available(r)
+                } else {
+                    com.coinop.budget.data.UpdateUi.UpToDate
+                }
+            } catch (e: Exception) {
+                com.coinop.budget.data.UpdateUi.Failed("Could not check for updates. Check your connection and try again.")
+            }
+        }
+    }
+
+    fun downloadUpdate() {
+        val r = (update as? com.coinop.budget.data.UpdateUi.Available)?.release
+            ?: (update as? com.coinop.budget.data.UpdateUi.Failed)?.let { lastRelease }
+            ?: return
+        lastRelease = r
+        update = com.coinop.budget.data.UpdateUi.Downloading(r, 0f)
+        viewModelScope.launch {
+            update = try {
+                val f = com.coinop.budget.data.Updater.download(getApplication(), r) { p ->
+                    update = com.coinop.budget.data.UpdateUi.Downloading(r, p)
+                }
+                com.coinop.budget.data.UpdateUi.Ready(r, f)
+            } catch (e: Exception) {
+                com.coinop.budget.data.UpdateUi.Failed(e.message?.take(160) ?: "Download failed")
+            }
+        }
+    }
+
+    private var lastRelease: com.coinop.budget.data.AppRelease? = null
+
+    fun installUpdate() {
+        val ready = update as? com.coinop.budget.data.UpdateUi.Ready ?: return
+        try {
+            if (!com.coinop.budget.data.Updater.install(getApplication(), ready.file)) {
+                message = "Allow installs from Coinop, then come back and tap Install again"
+            }
+        } catch (e: Exception) {
+            update = com.coinop.budget.data.UpdateUi.Failed("Could not open the installer")
+        }
+    }
+
+    fun resetUpdate() {
+        if (update !is com.coinop.budget.data.UpdateUi.Downloading) update = com.coinop.budget.data.UpdateUi.Idle
+    }
+
     // ================================================================ investments
 
     fun addInvestAccount(name: String) = launchCatching {

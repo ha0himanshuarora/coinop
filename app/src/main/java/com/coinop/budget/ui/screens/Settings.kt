@@ -111,6 +111,7 @@ fun SettingsScreen(
     var passwordDialog by remember { mutableStateOf(false) }
     var dataDialog by remember { mutableStateOf(false) }
     var accountDialog by remember { mutableStateOf(false) }
+    var updateSheet by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val sections = listOf(
@@ -223,6 +224,13 @@ fun SettingsScreen(
                         trailing = { RText("v${BuildConfig.VERSION_NAME}", size = 12.sp, color = p.onVariant, maxLines = 1) },
                     )
                 },
+                SettingRowDef("update upgrade check new version download install github") {
+                    SettingRow(
+                        AppIcon.SETTINGS, "Check for updates", "Download the latest release from GitHub",
+                        onClick = { updateSheet = true },
+                        trailing = { AppIconView(AppIcon.CHEVRON, p.onVariant, 18.dp) },
+                    )
+                },
             ),
         ),
         SettingSectionDef(
@@ -290,6 +298,10 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    if (updateSheet) {
+        UpdateSheet(vm) { updateSheet = false }
     }
 
     if (fontSheet) {
